@@ -1,110 +1,110 @@
 # 🏁 Automated CheatSheet for Active Directory Enumeration
 
-Este repositorio contiene **scripts en Bash** que actúan como **chuletas interactivas** para la enumeración de entornos de Active Directory en laboratorios, CTFs y auditorías.
+This repository contains **Bash scripts** that work as an **interactive cheatsheet** for enumerating Active Directory environments in labs, CTFs, and penetration tests.
 
-El objetivo no es automatizar la explotación, sino guiar al pentester en un **flujo ordenado y lógico de enumeración**, mostrando las **preguntas clave** que debe hacerse en cada fase y los **comandos listos para ejecutar**.
+The goal is not to automate exploitation, but to guide the pentester through a **structured enumeration flow**, showing the **key questions** to ask at each stage and the **ready-to-use commands**.
 
 ---
 
-## ✨ Características
+## ✨ Features
 
-- Flujo estandarizado: **SMB → LDAP → Kerberos → DNS → RPC → WinRM**  
-- Preguntas guía para cada servicio (*¿puedo entrar sin creds? ¿me da tickets crackeables?*)  
-- Sintaxis preparada para herramientas habituales:  
+- Standardized flow: **SMB → LDAP → Kerberos → DNS → RPC → WinRM**  
+- Guiding questions for each service (*Can I connect without creds? Are there crackable tickets?*)  
+- Ready-to-use syntax for common tools:  
   - `smbmap`, `smbclient`, `enum4linux-ng`  
   - `ldapsearch`, `ldapdomaindump`  
   - `GetNPUsers.py`, `GetUserSPNs.py`  
   - `dig`, `dnsenum`  
   - `rpcclient`  
   - `evil-winrm`  
-- Salida clara y coloreada directamente en la terminal  
-- Disponible en **dos versiones**: español (`ad_enum_es.sh`) e inglés (`ad_enum_en.sh`)  
+- Clean, colorized output directly in the terminal  
+- Available in **two versions**: Spanish (`ad_enum_es.sh`) and English (`ad_enum_en.sh`)  
 
 ---
 
-## 📂 Scripts disponibles
+## 📂 Available Scripts
 
-- 🇪🇸 **`ad_enum_es.sh`** → versión en español  
-- 🇬🇧 **`ad_enum_en.sh`** → versión en inglés  
+- 🇪🇸 **`ad_enum_es.sh`** → Spanish version  
+- 🇬🇧 **`ad_enum_en.sh`** → English version  
 
 ---
 
 ## ⚙️ Usage
 
-Dar permisos de ejecución:  
+Make the script executable:  
 
 ```bash
 chmod +x ad_enum_es.sh
 chmod +x ad_enum_en.sh
 ```
 
-Ejecutar el script con la **IP del objetivo** y el **nombre del dominio**:  
+Run the script with the **target IP** and the **domain name**:  
 
 ```bash
-./ad_enum_es.sh <IP> <DOMINIO>
+./ad_enum_es.sh <IP> <DOMAIN>
 ./ad_enum_en.sh <IP> <DOMAIN>
 ```
 
-### Ejemplo:
+### Example:
 
 ```bash
-./ad_enum_es.sh 10.10.10.161 forest.htb
+./ad_enum_en.sh 10.10.10.161 forest.htb
 ```
 
 ---
 
-## 📟 Ejemplo de salida
+## 📟 Example Output
 
 ```text
 #########################################
  Active Directory Enumeration CheatSheet
- Flujo: SMB → LDAP → Kerberos → DNS → RPC → WinRM
- Objetivo: 10.10.10.161 (forest.htb)
+ Flow: SMB → LDAP → Kerberos → DNS → RPC → WinRM
+ Target: 10.10.10.161 (forest.htb)
 #########################################
 
 1️⃣ SMB (445/139)
-Pregunta clave: ¿puedo entrar sin credenciales? ¿puedo listar shares/usuarios?
+Key question: Can I connect without creds? Can I list shares/users?
 ----------------------------------------------------
 smbmap -H 10.10.10.161
 smbclient -N -L //10.10.10.161/
 enum4linux-ng -A 10.10.10.161
 
 2️⃣ LDAP (389/3268)
-Pregunta clave: ¿puedo ver usuarios de forma anónima?
+Key question: Can I enumerate users anonymously?
 ----------------------------------------------------
 ldapsearch -x -H ldap://10.10.10.161 -b "DC=forest,DC=htb"
 ldapdomaindump ldap://10.10.10.161 -u '' -p ''
 
 3️⃣ Kerberos (88/464)
-Pregunta clave: ¿puedo pedir tickets crackeables?
+Key question: Can I request crackable tickets?
 ----------------------------------------------------
 GetNPUsers.py forest.htb/ -no-pass -usersfile users.txt -dc-ip 10.10.10.161
-GetUserSPNs.py forest.htb/usuario:'contraseña' -dc-ip 10.10.10.161 -request
+GetUserSPNs.py forest.htb/user:'password' -dc-ip 10.10.10.161 -request
 
 4️⃣ DNS (53)
-Pregunta clave: ¿me permite transferencia de zona (AXFR)?
+Key question: Does it allow a zone transfer (AXFR)?
 ----------------------------------------------------
 dig @10.10.10.161 forest.htb AXFR
 
 5️⃣ RPC (135/593)
-Pregunta clave: ¿puedo enumerar usuarios si SMB falla?
+Key question: Can I enumerate users if SMB fails?
 ----------------------------------------------------
 rpcclient -U "" 10.10.10.161
-# dentro de rpcclient:
+# inside rpcclient:
 #   enumdomusers
 #   enumdomgroups
 
 6️⃣ WinRM (5985/47001)
-Pregunta clave: ¿tengo credenciales válidas? Si sí → entrar aquí.
+Key question: Do I have valid credentials? If yes → access here.
 ----------------------------------------------------
-evil-winrm -i 10.10.10.161 -u usuario -p 'contraseña'
+evil-winrm -i 10.10.10.161 -u user -p 'password'
 
 #########################################
 ```
 
 ---
 
-## 📌 Nota
+## 📌 Note
 
-Este script está pensado como **chuleta educativa y de referencia rápida**.  
-No sustituye al análisis crítico ni a la experiencia práctica del pentester.  
+This script is intended as an **educational and quick-reference cheatsheet**.  
+It does not replace critical analysis or the practical experience of the pentester.  
